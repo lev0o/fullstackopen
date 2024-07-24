@@ -18,12 +18,18 @@ const Feedback = ({ onPressGood, onPressNeutral, onPressBad }) => {
 }
 
 const Results = ({ good, neutral, bad }) => {
+  let all = good + neutral + bad
+  let score = good - bad
+
   return (
     <section>
       <h1><b>statistics</b></h1>
-      <text>good {good}</text><br />
-      <text>neutral {neutral}</text><br />
-      <text>bad {bad}</text>
+      <span>good {good}</span><br />
+      <span>neutral {neutral}</span><br />
+      <span>bad {bad}</span><br />
+      <span>all {all}</span><br />
+      <span>average {all != 0 ? score / all : 0}</span><br />
+      <span>positive {all != 0 ? (good * 100) / all : 0} %</span>
     </section>
   )
 }
