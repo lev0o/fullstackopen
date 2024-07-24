@@ -17,11 +17,12 @@ const Feedback = ({ onPressGood, onPressNeutral, onPressBad }) => {
   )
 }
 
-const StatisticsLine = ({ text, value, postfix }) => {
+const StatisticsLine = ({ text, value }) => {
   return (
-    <>
-      <span>{text} {value} {postfix}</span><br />
-    </>
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
   )
 }
 
@@ -32,14 +33,17 @@ const Statistics = ({ good, neutral, bad }) => {
     <section>
       <h1><b>statistics</b></h1>
       {all != 0 ? 
-        <>
-          <StatisticsLine text="good" value={good}/>
-          <StatisticsLine text="neutral" value={neutral}/>
-          <StatisticsLine text="bad" value={bad}/>
-          <StatisticsLine text="all" value={all}/>
-          <StatisticsLine text="average" value={(good - bad) / all}/>
-          <StatisticsLine text="positive" value={`${(good * 100) / all} %`}/>
-        </> 
+        <table>
+          <thead></thead>
+          <tbody>
+            <StatisticsLine text="good" value={good}/>
+            <StatisticsLine text="neutral" value={neutral}/>
+            <StatisticsLine text="bad" value={bad}/>
+            <StatisticsLine text="all" value={all}/>
+            <StatisticsLine text="average" value={(good - bad) / all}/>
+            <StatisticsLine text="positive" value={`${(good * 100) / all} %`}/>
+          </tbody>
+        </table> 
         : 
         <span>No feedback given</span>
       }
