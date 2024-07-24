@@ -17,7 +17,7 @@ const Feedback = ({ onPressGood, onPressNeutral, onPressBad }) => {
   )
 }
 
-const Results = ({ good, neutral, bad }) => {
+const Statistics = ({ good, neutral, bad }) => {
   let all = good + neutral + bad
   let score = good - bad
 
@@ -55,7 +55,7 @@ const App = () => {
   return (
     <>
       <Feedback onPressGood={incrementGood} onPressNeutral={incrementNeutral} onPressBad={incrementBad}/>
-      <Results good={good} neutral={neutral} bad={bad}/>
+      <Statistics good={good} neutral={neutral} bad={bad}/>
     </>
   )
 }
