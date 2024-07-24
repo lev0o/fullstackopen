@@ -1,1 +1,1 @@
-Solutions of part 0 exercises to this folder
+Submissions for part0
