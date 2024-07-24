@@ -13,6 +13,7 @@ const App = () => {
   ]
    
   const [selected, setSelected] = useState(0)
+  const [max, setMax] = useState(0) 
   const [points, setPoints] = useState(new Uint8Array(anecdotes.length))
 
   const handleNextAnecdote = () => {
@@ -22,15 +23,25 @@ const App = () => {
   const handleVoteIncrement = () => {
     const copy = [...points]
     copy[selected] += 1
+    if(copy[selected] > copy[max]) 
+      setMax(selected)
     setPoints(copy)
   }
 
   return (
     <div>
-      {anecdotes[selected]}<br />
-      has {points[selected]} votes<br />
-      <button onClick={handleVoteIncrement}>vote</button>
-      <button onClick={handleNextAnecdote}>next anecdote</button>
+      <section>
+        <h1>Anecdote of the day</h1>
+        {anecdotes[selected]}<br />
+        has {points[selected]} votes<br />
+        <button onClick={handleVoteIncrement}>vote</button>
+        <button onClick={handleNextAnecdote}>next anecdote</button>
+      </section>
+      <section>
+        <h1>Anecdote with the most votes</h1>
+        {anecdotes[max]}<br />
+        has {points[max]} votes<br />
+      </section>
     </div>
   )
 }
