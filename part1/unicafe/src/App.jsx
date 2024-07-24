@@ -1,37 +1,44 @@
 import { useState } from 'react'
 
+const Button = ({ text, onClick }) => {
+  return (
+    <button onClick={onClick}>{text}</button>
+  )
+}
+
 const Feedback = ({ onPressGood, onPressNeutral, onPressBad }) => {
   return (
     <section>
       <h1><b>give feedback</b></h1>
-      <button onClick={onPressGood}>
-        good
-      </button>
-      <button onClick={onPressNeutral}>
-        neutral
-      </button>
-      <button onClick={onPressBad}>
-        bad
-      </button>
+      <Button text="good" onClick={onPressGood}/>
+      <Button text="neutral" onClick={onPressNeutral}/>
+      <Button text="bad" onClick={onPressBad}/>
     </section>
+  )
+}
+
+const StatisticsLine = ({ text, value, postfix }) => {
+  return (
+    <>
+      <span>{text} {value} {postfix}</span><br />
+    </>
   )
 }
 
 const Statistics = ({ good, neutral, bad }) => {
   let all = good + neutral + bad
-  let score = good - bad
 
   return (
     <section>
       <h1><b>statistics</b></h1>
       {all != 0 ? 
         <>
-          <span>good {good}</span><br />
-          <span>neutral {neutral}</span><br />
-          <span>bad {bad}</span><br />
-          <span>all {all}</span><br />
-          <span>average {score / all}</span><br />
-          <span>positive {(good * 100) / all} %</span>
+          <StatisticsLine text="good" value={good}/>
+          <StatisticsLine text="neutral" value={neutral}/>
+          <StatisticsLine text="bad" value={bad}/>
+          <StatisticsLine text="all" value={all}/>
+          <StatisticsLine text="average" value={(good - bad) / all}/>
+          <StatisticsLine text="positive" value={`${(good * 100) / all} %`}/>
         </> 
         : 
         <span>No feedback given</span>
