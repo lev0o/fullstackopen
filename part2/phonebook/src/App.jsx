@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import axios from 'axios'
 
 const Persons = ({ persons }) => {
   return(
@@ -55,15 +56,20 @@ const Filter = ({ searchName, setSearchName }) => {
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { id: uuidv4(), name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { id: uuidv4(), name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { id: uuidv4(), name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { id: uuidv4(), name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchName, setSearchName] = useState('')
+
+  useEffect(() => {
+    //console.log('effect') // this will be logged twice, because of strict mode (in main.jsx) which intentionally double-invokes certain lifecycle methods and hooks like useEffect to help developers find unexpected side effects
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        //console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
 
   return (
     <div>
@@ -71,7 +77,7 @@ const App = () => {
       <Filter searchName={searchName} setSearchName={setSearchName} />
 
       <h3>Add new</h3>
-      <PersonForm persons={persons} newName={newName} newNumber={newNumber} setPersons={setPersons} setNewName={setNewName} setNewNumber={setNewNumber} />
+      <PersonForm persons={persons} newName={newName} newNumber={newNumber} setPersons={setPersons} setNewName={setNewName} setNewNumber={setNewNumber} /> {/* This is terrible */}
 
       <h3>Numbers</h3>
       <Persons persons={persons.filter(person => person.name.toUpperCase().includes(searchName.toUpperCase()))} />
