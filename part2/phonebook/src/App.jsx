@@ -14,7 +14,6 @@ const Persons = ({ persons, setPersons }) => {
     }
   }
 
-
   return(
     <ul>
       {persons.map(person => <li key={person.id}>{person.name} {person.number} <button onClick={(e) => handleDelete(e, person)}>delete</button></li>)}
@@ -28,20 +27,28 @@ const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNe
   const handleSubmit = (e) => {
     e.preventDefault()
     
-    if (!persons.some(person => person.name === newName)) {
-      const newObject = {  // Generate a new UUID for each new person
+    const person = persons.find(person => person.name.toUpperCase() === newName.toUpperCase())
+
+    if (!person) {
+      const newPerson = {  // Generate a new UUID for each new person
         name: newName,
         number: newNumber,
         id: uuidv4()
       }
       
-      personsService.addPerson(newObject)
-        .then(newPerson => {
-          setPersons(persons.concat(newPerson))
-        })
+      personsService.addPerson(newPerson)
+        .then(newPerson => setPersons(persons.concat(newPerson)))
 
     } else {
-      alert(`${newName} has already been added`)
+      if(confirm(`${newName} has already been added. Replace the old number with a new one?`)) {
+        const newPerson = {
+          ...person,
+          number: newNumber
+        }
+
+        personsService.updatePerson(newPerson, newPerson.id)
+          .then(newPerson => setPersons(persons.map(p => p.id !== person.id ? p : newPerson)))
+      }
     }
 
     setNewName('')
@@ -54,7 +61,7 @@ const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNe
         name: <input type="text" value={newName} onChange={(e) => {setNewName(e.target.value)}} />
       </div>
       <div>
-        number: <input type="number" value={newNumber} onChange={(e) => {setNewNumber(e.target.value)}}/>
+        number: <input value={newNumber} onChange={(e) => {setNewNumber(e.target.value)}}/>
       </div>
       <div>
         <button type="submit">add</button>
