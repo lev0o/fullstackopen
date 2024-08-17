@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import axios from 'axios'
+import personsService from './services/persons'
 
 const Persons = ({ persons }) => {
   return(
@@ -17,13 +17,17 @@ const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNe
     e.preventDefault()
     
     if (!persons.some(person => person.name === newName)) {
-      const newObject = {
-        id: uuidv4(),  // Generate a new UUID for each new person
+      const newObject = {  // Generate a new UUID for each new person
         name: newName,
-        number: newNumber
+        number: newNumber,
+        id: uuidv4()
       }
-  
-      setPersons(persons.concat(newObject))
+      
+      personsService.addPerson(newObject)
+        .then(newPerson => {
+          setPersons(persons.concat(newPerson))
+        })
+
     } else {
       alert(`${newName} has already been added`)
     }
@@ -63,11 +67,11 @@ const App = () => {
 
   useEffect(() => {
     //console.log('effect') // this will be logged twice, because of strict mode (in main.jsx) which intentionally double-invokes certain lifecycle methods and hooks like useEffect to help developers find unexpected side effects
-    axios
-      .get('http://localhost:3001/persons')
+    
+    personsService.getAll()
       .then(response => {
         //console.log('promise fulfilled')
-        setPersons(response.data)
+        setPersons(response)
       })
   }, [])
 
