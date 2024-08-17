@@ -2,10 +2,22 @@ import { useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import personsService from './services/persons'
 
-const Persons = ({ persons }) => {
+const Persons = ({ persons, setPersons }) => {
+  const handleDelete = (e, person) => {
+    e.preventDefault()
+
+    if (confirm(`Are you sure you want to delete ${person.name}?`)) {
+      personsService.deletePerson(person.id)
+      .then(response => {
+        setPersons(persons.filter(person => person.id != response.id))
+      })
+    }
+  }
+
+
   return(
     <ul>
-      {persons.map(person => <li key={person.id}>{person.name} {person.number}</li>)}
+      {persons.map(person => <li key={person.id}>{person.name} {person.number} <button onClick={(e) => handleDelete(e, person)}>delete</button></li>)}
     </ul>
   )
 
@@ -84,7 +96,7 @@ const App = () => {
       <PersonForm persons={persons} newName={newName} newNumber={newNumber} setPersons={setPersons} setNewName={setNewName} setNewNumber={setNewNumber} /> {/* This is terrible */}
 
       <h3>Numbers</h3>
-      <Persons persons={persons.filter(person => person.name.toUpperCase().includes(searchName.toUpperCase()))} />
+      <Persons persons={persons.filter(person => person.name.toUpperCase().includes(searchName.toUpperCase()))} setPersons={setPersons} />
     </div>
   )
 }
