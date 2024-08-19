@@ -23,7 +23,7 @@ const Persons = ({ persons, setPersons }) => {
   // use person.id as key for li element
 }
 
-const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNewNumber }) => {
+const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNewNumber, setMessage, setError }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     
@@ -38,6 +38,11 @@ const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNe
       
       personsService.addPerson(newPerson)
         .then(newPerson => setPersons(persons.concat(newPerson)))
+        .then(() => {
+          setError(false)
+          setMessage(`Added ${newPerson.name}`)
+          setTimeout(() => setMessage(null), 5000)
+        })
 
     } else {
       if(confirm(`${newName} has already been added. Replace the old number with a new one?`)) {
@@ -48,6 +53,17 @@ const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNe
 
         personsService.updatePerson(newPerson, newPerson.id)
           .then(newPerson => setPersons(persons.map(p => p.id !== person.id ? p : newPerson)))
+          .then(() => {
+            setError(false)
+            setMessage(`Updated ${person.name}'s number`)
+            setTimeout(() => setMessage(null), 5000)
+          })
+          .catch(() => {
+            setError(true)
+            setMessage(`${person.name} has already been deleted from the server`)
+            setTimeout(() => setMessage(null), 5000)
+            setPersons(persons.filter(p => p.id != newPerson.id))
+          })
       }
     }
 
@@ -78,11 +94,25 @@ const Filter = ({ searchName, setSearchName }) => {
   )
 }
 
+const Notification = ({ message, color }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className='notif' style={{color: color}}>
+      {message}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchName, setSearchName] = useState('')
+  const [message, setMessage] = useState(null)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     //console.log('effect') // this will be logged twice, because of strict mode (in main.jsx) which intentionally double-invokes certain lifecycle methods and hooks like useEffect to help developers find unexpected side effects
@@ -97,10 +127,11 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} color={error ? 'red' : 'green'} />
       <Filter searchName={searchName} setSearchName={setSearchName} />
 
       <h3>Add new</h3>
-      <PersonForm persons={persons} newName={newName} newNumber={newNumber} setPersons={setPersons} setNewName={setNewName} setNewNumber={setNewNumber} /> {/* This is terrible */}
+      <PersonForm persons={persons} newName={newName} newNumber={newNumber} setPersons={setPersons} setNewName={setNewName} setNewNumber={setNewNumber} setMessage={setMessage} setError={setError} /> {/* This is terrible */}
 
       <h3>Numbers</h3>
       <Persons persons={persons.filter(person => person.name.toUpperCase().includes(searchName.toUpperCase()))} setPersons={setPersons} />
