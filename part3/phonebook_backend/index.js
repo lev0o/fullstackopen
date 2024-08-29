@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let persons = [
     { 
       "id": "1",
@@ -65,6 +67,26 @@ app.get('/notes', (request, response) => {
     const d = new Date()
 
     response.send(`<p>Phonebook has info for ${persons.length} people</p> <p>${formatDateTime(d)}</p>`)
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+    const id = request.params.id
+    persons = persons.filter(person => person.id !== id)
+
+    response.status(204).end()
+})
+
+app.post('/api/persons', (request, response) => {
+    if (!request.body) return response.status(400).json({error: 'Content missing'})
+
+    const person = request.body
+    person.id = Math.floor(Math.random() * 1000)
+
+    if (!(person.name && person.number)) return response.status(400).json({error: 'Person must have a name and number'})
+    if (persons.find(p => p.name === person.name)) return response.status(400).json({error: 'Name already exists'})
+
+    persons.push(person)
+    response.status(201).json(person)
 })
 
 const PORT = 3001
