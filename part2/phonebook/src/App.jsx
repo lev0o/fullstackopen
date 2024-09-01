@@ -52,7 +52,10 @@ const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNe
         }
 
         personsService.updatePerson(newPerson, newPerson.id)
-          .then(newPerson => setPersons(persons.map(p => p.id !== person.id ? p : newPerson)))
+          .then(newPerson => {
+            console.log(newPerson)
+            setPersons(persons.map(p => p.id !== newPerson.id ? p : newPerson))
+          })
           .then(() => {
             setError(false)
             setMessage(`Updated ${person.name}'s number`)

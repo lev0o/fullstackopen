@@ -111,13 +111,13 @@ app.put('/api/persons/:id', (request, response) => {
     const updatedPerson = request.body
     const index = persons.findIndex(person => person.id === updatedPerson.id)
     
-    if (index !== -1) {
-        persons[index] = updatedPerson
-        console.log(persons[index])
-        return response.status(204).json(persons[index])
+    if (index === -1) {
+        
+        return response.status(404).json({error: 'This person does not exist in database'})
     }
 
-    response.status(404).json({error: 'This person does not exist in database'})
+    persons[index] = updatedPerson
+    response.status(204).json(persons[index]) 
 })
 
 const unknownEndpoint = (request, response) => {
