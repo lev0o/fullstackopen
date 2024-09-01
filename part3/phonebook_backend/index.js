@@ -96,7 +96,7 @@ app.post('/api/persons', (request, response) => {
     if (!request.body) return response.status(400).json({error: 'Content missing'})
 
     const person = request.body
-    person.id = Math.floor(Math.random() * 1000)
+    person.id = Math.floor(Math.random() * 1000).toString()
 
     if (!(person.name && person.number)) return response.status(400).json({error: 'Person must have a name and number'})
     if (persons.find(p => p.name === person.name)) return response.status(400).json({error: 'Name already exists'})

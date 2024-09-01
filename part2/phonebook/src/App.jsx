@@ -7,10 +7,12 @@ const Persons = ({ persons, setPersons }) => {
     e.preventDefault()
 
     if (confirm(`Are you sure you want to delete ${person.name}?`)) {
+      console.log(person.id)
       personsService.deletePerson(person.id)
       .then(response => {
         setPersons(persons.filter(p => p.id !== person.id))
       })
+      console.log(persons)
     }
   }
 
