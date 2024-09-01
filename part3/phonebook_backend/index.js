@@ -105,6 +105,19 @@ app.post('/api/persons', (request, response) => {
     response.status(201).json(person)
 })
 
+app.put('/api/persons/:id', (request, response) => {
+    if (!request.body) return response.status(400).json({error: 'Content missing'})
+    
+    const updatedPerson = request.body
+    const index = persons.findIndex(person => person.id === updatedPerson.id)
+    
+    if (index !== -1) {
+        persons[index] = updatedPerson
+        return response.status(204).json(persons[index])
+    }
+
+    response.status(404).json({error: 'This person does not exist in database'})
+})
 
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'Unknown endpoint' })
