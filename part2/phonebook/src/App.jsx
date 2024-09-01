@@ -9,7 +9,7 @@ const Persons = ({ persons, setPersons }) => {
     if (confirm(`Are you sure you want to delete ${person.name}?`)) {
       personsService.deletePerson(person.id)
       .then(response => {
-        setPersons(persons.filter(person => person.id != response.id))
+        setPersons(persons.filter(p => p.id != person.id))
       })
     }
   }

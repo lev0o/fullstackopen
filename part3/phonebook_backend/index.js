@@ -2,6 +2,7 @@ const express = require('express')
 const morgan = require('morgan')
 const app = express()
 
+app.use(express.static('dist'))
 app.use((req, res, next) => { // Capture the response of the json result
     const oldJson = res.json
     res.json = function (body) {
