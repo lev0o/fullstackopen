@@ -113,6 +113,7 @@ app.put('/api/persons/:id', (request, response) => {
     
     if (index !== -1) {
         persons[index] = updatedPerson
+        console.log(persons[index])
         return response.status(204).json(persons[index])
     }
 
