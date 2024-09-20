@@ -1,5 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const Person = require('./models/person')
 const app = express()
 
 app.use(express.static('dist'))
@@ -18,29 +20,6 @@ morgan.token('response-body', (req, res) => {
 
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :response-body'))
-
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
 
 function formatDateTime(date) {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -65,68 +44,94 @@ function formatDateTime(date) {
 }
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    const person = persons.find(person => person.id === id)
 
-    if (person) {
+    Person.findById(id).then(person => {
         response.json(person)
-    } else {
+    }).catch(error => {
+        console.error('Error fetching data:', error.message)
         response.status(404).end()
-    }
+    })
 })
 
 app.get('/notes', (request, response) => {
     const d = new Date()
 
-    response.send(`<p>Phonebook has info for ${persons.length} people</p> <p>${formatDateTime(d)}</p>`)
+    Person.countDocuments().then(count => {
+        response.send(`<p>Phonebook has info for ${count} people</p> <p>${formatDateTime(d)}</p>`)
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    persons = persons.filter(person => person.id !== id)
 
-    response.status(204).end()
+    Person.findByIdAndDelete(id).then(deletedPerson => {
+        response.status(204).end()
+    }).catch(error => {
+        console.error('Error deleting data:', error.message)
+        response.status(404).end()
+    })
 })
 
 app.post('/api/persons', (request, response) => {
     if (!request.body) return response.status(400).json({error: 'Content missing'})
 
-    const person = request.body
-    person.id = Math.floor(Math.random() * 1000).toString()
+    const body = request.body
+    const person = new Person({
+        name: body.name,
+        number: body.number
+    })
 
-    if (!(person.name && person.number)) return response.status(400).json({error: 'Person must have a name and number'})
-    if (persons.find(p => p.name === person.name)) return response.status(400).json({error: 'Name already exists'})
+    if (!(body.name && body.number)) return response.status(400).json({error: 'Person must have a name and number'})
 
-    persons.push(person)
-    response.status(201).json(person)
+    person.save().then(savedPerson => {
+        response.status(201).json(person)
+    }).catch(error => {
+        console.error('Error adding data:', error.message)
+        response.status(404).end()
+    })
 })
 
 app.put('/api/persons/:id', (request, response) => {
-    if (!request.body) return response.status(400).json({error: 'Content missing'})
-    
-    const updatedPerson = request.body
-    const index = persons.findIndex(person => person.id === updatedPerson.id)
-    
-    if (index === -1) {
-        
-        return response.status(404).json({error: 'This person does not exist in database'})
+    const body = request.body
+
+    if (!body.name || !body.number) {
+        return response.status(400).json({ error: 'Person must have a name and number' })
     }
 
-    persons[index] = updatedPerson
-    response.status(204).json(persons[index]) 
+    const id = request.params.id
+    const updatedPerson = {
+        name: body.name,
+        number: body.number,
+    }
+
+    Person.findByIdAndUpdate(id, updatedPerson, { new: true, runValidators: true, context: 'query' })
+        .then(result => {
+            if (result) {
+                response.json(result) // Respond with the updated document
+            } else {
+                response.status(404).json({ error: 'Person not found' }) // Handle person not found
+            }
+        })
+        .catch(error => {
+            console.error('Error updating data:', error.message)
+            response.status(400).json({ error: 'Error updating person' }) // Respond with error
+        })
 })
 
 const unknownEndpoint = (request, response) => {
-    response.status(404).send({ error: 'Unknown endpoint' })
+    response.status(404).send({error: 'Unknown endpoint'})
 }
   
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

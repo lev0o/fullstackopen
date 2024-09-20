@@ -121,7 +121,6 @@ const App = () => {
     
     personsService.getAll()
       .then(response => {
-        //console.log('promise fulfilled')
         setPersons(response)
       })
   }, [])
