@@ -43,6 +43,12 @@ const PersonForm = ({ persons, newName, newNumber, setPersons, setNewName, setNe
           setMessage(`Added ${newPerson.name}`)
           setTimeout(() => setMessage(null), 5000)
         })
+        .catch(error => {
+          console.log(error.response.data.error)
+          setError(true)
+          setMessage(JSON.stringify(error.response.data.error))
+          setTimeout(() => setMessage(null), 5000)
+        })
 
     } else {
       if(confirm(`${newName} has already been added. Replace the old number with a new one?`)) {

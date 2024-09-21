@@ -87,18 +87,15 @@ app.post('/api/persons', (request, response, next) => {
     if (!request.body) return response.status(400).json({ error: 'Content missing' })
 
     const body = request.body
+
     const person = new Person({
         name: body.name,
         number: body.number
     })
 
-    if (!(body.name && body.number)) {
-        return response.status(400).json({ error: 'Person must have a name and number' })
-    }
-
     person.save()
         .then(savedPerson => {
-            response.status(201).json(person)
+            response.status(201).json(savedPerson)
         })
         .catch(error => next(error))
 })
